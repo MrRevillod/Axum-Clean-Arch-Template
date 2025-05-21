@@ -1,0 +1,16 @@
+{
+    "recommendations": [
+        "vivaxy.vscode-conventional-commits",
+        "fill-labs.dependi",
+        "ms-azuretools.vscode-docker",
+        "mikestead.dotenv",
+        "usernamehw.errorlens",
+        "tamasfe.even-better-toml",
+        "ionutvmi.path-autocomplete",
+        "esbenp.prettier-vscode",
+        "YoavBls.pretty-ts-errors",
+        "Prisma.prisma",
+        "rust-lang.rust-analyzer",
+        "dbaeumer.vscode-eslint",
+    ]
+}
