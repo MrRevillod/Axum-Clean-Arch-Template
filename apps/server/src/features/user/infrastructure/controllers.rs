@@ -13,7 +13,7 @@ use crate::features::user::{
         },
     },
     infrastructure::{
-        dtos::{CreateUserDto, UpdateUserDto},
+        dtos::body::{CreateUserDto, UpdateUserDto},
         models::UserModel,
     },
 };
@@ -24,6 +24,9 @@ pub async fn get_users(
     use_case: InjectUseCase<dyn GetUsersCase, GetUsersCaseImpl>,
 ) -> ControllerResult {
     let users = use_case.execute().await?;
+
+    // The users are returned as a vector of `User` instances.
+    // We need to convert them into `UserModel` instances for the response.
 
     let data = users
         .into_iter()

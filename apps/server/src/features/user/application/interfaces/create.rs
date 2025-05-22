@@ -1,3 +1,16 @@
+// This module defines the CreateUserCase Trait/Interface and its
+// corresponding Input DTO CreateUserInput.
+
+// |----------------------------------------------------------------|
+// |                 Input entities between layers                  |
+// |----------------------------------------------------------------|
+// | User Infrastructure Layer (CreateUserDto) |     Controller     |
+// |------------------------------------------ |--------------------|
+// | User Application Layer (CreateUserInput)  |      Use Case      |
+// |------------------------------------------ |--------------------|
+// |         User Domain Layer (User)          |     Repository     |
+// |----------------------------------------------------------------|
+
 use async_trait::async_trait;
 use shaku::Interface;
 use uuid::Uuid;

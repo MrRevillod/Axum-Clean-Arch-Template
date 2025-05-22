@@ -1,8 +1,25 @@
+// This file implements the conversion from the `UserError` enum
+// to the `HttpResponse` type.
+
+// This is necessary bc the `UserError` enum is used in the internal
+// application and domain layers
+
+// |--------------------------------------------|----------------|
+// |  User Infrastructure Layer (HttpResponse)  |   Controller   |
+// |--------------------------------------------|----------------|
+// |     User Application Layer (UserError)     |    Use Case    |
+// |--------------------------------------------|----------------|
+// |       User Domain Layer (UserError)        |   Repository   |
+// |--------------------------------------------|----------------|
+
 use axum::http::StatusCode;
 use axum_responses::HttpResponse;
 use serde_json::json;
 
 use crate::features::user::domain::errors::UserError;
+
+// Each variant of the `UserError` enum corresponds to a specific error
+// that can occur in the user management process.
 
 impl From<UserError> for HttpResponse {
     fn from(value: UserError) -> Self {

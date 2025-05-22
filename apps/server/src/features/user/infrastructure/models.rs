@@ -1,3 +1,15 @@
+// This module contains the UserModel struct and its conversions traits.
+
+// |----------------------------------------------------------------|
+// |                Return entities between layers                  |
+// |----------------------------------------------------------------|
+// |  User Infrastructure Layer (UserModel)   | Controller|RepoImpl |
+// |------------------------------------------|---------------------|
+// |       User Application Layer (User)      |       Use Case      |
+// |------------------------------------------|---------------------|
+// |         User Domain Layer (User)         |      Repository     |
+// |----------------------------------------------------------------|
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
@@ -5,6 +17,13 @@ use sqlx::prelude::FromRow;
 use uuid::Uuid;
 
 use crate::features::user::domain::entity::User;
+
+// The `UserModel` struct represents the user model in the database.
+// Implements the `FromRow` trait from the `sqlx` crate.
+// Implements the `Serialize` and `Deserialize` traits from the `serde` crate.
+
+// Serialize: UserModel -> JSON
+// Deserialize: JSON | OTHERS -> UserModel
 
 #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
 pub struct UserModel {
@@ -16,6 +35,13 @@ pub struct UserModel {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
+
+// This is the conversion from the `UserModel` struct to the `User` struct.
+// This is necessary bc the `UserModel` struct is used in the infrastructure layer,
+// while the `User` struct is used in the application and domain layers.
+
+// Basically, the repository impl has to return the an User entity,
+// but the database returns a UserModel struct.
 
 impl From<UserModel> for User {
     fn from(user_model: UserModel) -> Self {
@@ -30,6 +56,12 @@ impl From<UserModel> for User {
         }
     }
 }
+
+// This is the conversion from the `User` struct to the `UserModel` struct.
+// It's the opposite of the previous conversion.
+
+// The use case impl returns a User entity, but the controller
+// needs to return a UserModel struct to the client.
 
 impl From<User> for UserModel {
     fn from(user: User) -> Self {
