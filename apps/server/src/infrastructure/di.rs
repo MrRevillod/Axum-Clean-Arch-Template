@@ -12,10 +12,9 @@ use crate::{
         infrastructure::repository::PostgresUserRepository,
     },
     infrastructure::database::PostgresConnection,
-    infrastructure::http::extractors::CustomInjectExtractor,
 };
 
-pub type InjectUseCase<T, I> = CustomInjectExtractor<AppModule, T, I>;
+pub type Inject<T> = shaku_axum::Inject<AppModule, T>;
 
 #[derive(Clone)]
 pub struct AppState {

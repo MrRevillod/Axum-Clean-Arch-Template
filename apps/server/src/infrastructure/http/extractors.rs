@@ -1,14 +1,13 @@
+use std::ops::Deref;
+
 use axum::{
-    extract::{FromRef, FromRequest, FromRequestParts, Json, Request},
-    http::{request::Parts, StatusCode},
+    extract::{FromRequest, Json, Query, Request},
+    http::StatusCode,
 };
 
+use axum_responses::HttpResponse;
 use serde_json::json;
 use validator::Validate;
-
-use axum_responses::HttpResponse;
-
-// ----------------------------------------------------------------------------
 
 pub struct BodyValidator<T>(pub T);
 
@@ -41,46 +40,40 @@ where
     }
 }
 
-// ----------------------------------------------------------------------------
+#[derive(Debug)]
+pub struct QueryValidator<T>(pub T);
 
-use shaku::{HasComponent, Interface, ModuleInterface};
-use std::sync::Arc;
-use std::{marker::PhantomData, ops::Deref};
-
-pub struct CustomInjectExtractor<
-    M: ModuleInterface + HasComponent<I> + ?Sized,
-    I: Interface + ?Sized,
-    Impl: Interface + ?Sized,
->(pub Arc<I>, PhantomData<M>, PhantomData<Impl>);
-
-impl<S, M, I, Impl> FromRequestParts<S> for CustomInjectExtractor<M, I, Impl>
-where
-    S: Send + Sync,
-    M: ModuleInterface + HasComponent<I> + ?Sized,
-    I: Interface + ?Sized,
-    Impl: Interface + ?Sized,
-    Arc<M>: FromRef<S>,
-{
-    type Rejection = (StatusCode, String);
-
-    async fn from_request_parts(
-        _req: &mut Parts,
-        state: &S,
-    ) -> Result<Self, Self::Rejection> {
-        let component = Arc::<M>::from_ref(state).resolve();
-        Ok(Self(component, PhantomData, PhantomData))
+impl<T> Deref for QueryValidator<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
-impl<M, I, Impl> Deref for CustomInjectExtractor<M, I, Impl>
+impl<S, T> FromRequest<S> for QueryValidator<T>
 where
-    M: ModuleInterface + HasComponent<I> + ?Sized,
-    I: Interface + ?Sized,
-    Impl: Interface + ?Sized,
+    S: Send + Sync,
+    T: Validate + for<'de> serde::Deserialize<'de> + Send,
 {
-    type Target = I;
+    type Rejection = HttpResponse;
 
-    fn deref(&self) -> &Self::Target {
-        Arc::as_ref(&self.0)
+    async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
+        let Query(value) =
+            Query::<T>::from_request(req, state).await.map_err(|_| {
+                HttpResponse {
+                    status: StatusCode::BAD_REQUEST,
+                    body: json!({ "message": "Invalid query format" }),
+                }
+            })?;
+
+        value.validate().map_err(|err| HttpResponse {
+            status: StatusCode::BAD_REQUEST,
+            body: json!({
+                "message": "Invalid query format",
+                "errors": err.to_string()
+            }),
+        })?;
+
+        Ok(Self(value))
     }
 }

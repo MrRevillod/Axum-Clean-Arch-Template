@@ -43,9 +43,6 @@ impl CreateUserCase for CreateUserCaseImpl {
             return Err(UserError::EmailAlreadyExists);
         }
 
-        // This could be done by a own email microservice (mailer)
-        // sending a message to a queue (rabbitmq)
-
         // check disposable/throwaway email
 
         if !mailchecker::is_valid(&user.email) {

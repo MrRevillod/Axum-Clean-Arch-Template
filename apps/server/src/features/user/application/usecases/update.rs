@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use chrono::Utc;
 use shaku::Component;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -45,6 +46,7 @@ impl UpdateUserCase for UpdateUserCaseImpl {
             user.password = self.hasher.hash(&p)?
         }
 
+        user.updated_at = Utc::now();
         self.repository.update(user).await
     }
 }

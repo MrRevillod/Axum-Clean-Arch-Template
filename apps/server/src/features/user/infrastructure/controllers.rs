@@ -1,43 +1,36 @@
 use axum::extract::Path;
 use axum_responses::{response, ControllerResult};
 
-use crate::features::user::{
-    application::{
-        interfaces::{
+use crate::{
+    features::user::{
+        application::interfaces::{
             create::CreateUserCase, delete::DeleteUserCase, get::GetUsersCase,
             update::UpdateUserCase,
         },
-        usecases::{
-            create::CreateUserCaseImpl, delete::DeleteUserCaseImpl,
-            get::GetUsersCaseImpl, update::UpdateUserCaseImpl,
+        infrastructure::dtos::body::{
+            CreateUserDto, PaginatedDataDTO, UpdateUserDto,
         },
     },
     infrastructure::{
-        dtos::body::{CreateUserDto, UpdateUserDto},
-        models::UserModel,
+        di::Inject,
+        http::extractors::{BodyValidator, QueryValidator},
     },
 };
 
-use crate::infrastructure::{di::InjectUseCase, http::extractors::BodyValidator};
+use super::dtos::query::UserQuery;
 
 pub async fn get_users(
-    use_case: InjectUseCase<dyn GetUsersCase, GetUsersCaseImpl>,
+    use_case: Inject<dyn GetUsersCase>,
+    QueryValidator(query): QueryValidator<UserQuery>,
 ) -> ControllerResult {
-    let users = use_case.execute().await?;
+    let paginated_data = use_case.execute(query.into()).await?;
+    let paginated_data_dto = PaginatedDataDTO::from(paginated_data);
 
-    // The users are returned as a vector of `User` instances.
-    // We need to convert them into `UserModel` instances for the response.
-
-    let data = users
-        .into_iter()
-        .map(|user| UserModel::from(user))
-        .collect::<Vec<UserModel>>();
-
-    response!(200, { "data": data })
+    response!(200, { paginated_data_dto })
 }
 
 pub async fn create_user(
-    use_case: InjectUseCase<dyn CreateUserCase, CreateUserCaseImpl>,
+    use_case: Inject<dyn CreateUserCase>,
     BodyValidator(user_data): BodyValidator<CreateUserDto>,
 ) -> ControllerResult {
     use_case.execute(user_data.into()).await?;
@@ -45,7 +38,7 @@ pub async fn create_user(
 }
 
 pub async fn update_user(
-    use_case: InjectUseCase<dyn UpdateUserCase, UpdateUserCaseImpl>,
+    use_case: Inject<dyn UpdateUserCase>,
     Path(id): Path<String>,
     BodyValidator(user_data): BodyValidator<UpdateUserDto>,
 ) -> ControllerResult {
@@ -54,7 +47,7 @@ pub async fn update_user(
 }
 
 pub async fn delete_user(
-    use_case: InjectUseCase<dyn DeleteUserCase, DeleteUserCaseImpl>,
+    use_case: Inject<dyn DeleteUserCase>,
     Path(id): Path<String>,
 ) -> ControllerResult {
     use_case.execute(id).await?;
