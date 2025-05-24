@@ -47,3 +47,4 @@ bcrypt = "0.17.0"
 mailchecker = "6.0.17"
 
 fake = { version = "4.3.0", optional = true }
+redis = "0.31.0"
