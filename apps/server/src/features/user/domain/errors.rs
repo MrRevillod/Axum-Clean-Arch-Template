@@ -1,3 +1,5 @@
+use crate::shared::domain::cache::CacheError;
+
 #[derive(Debug)]
 pub enum UserError {
     NotFound,
@@ -6,4 +8,12 @@ pub enum UserError {
     UnexpectedError,
     InvalidEmail,
     InvalidId,
+}
+
+impl From<CacheError> for UserError {
+    fn from(value: CacheError) -> Self {
+        dbg!(value);
+
+        UserError::UnexpectedError
+    }
 }

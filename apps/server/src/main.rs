@@ -1,6 +1,6 @@
 mod app;
 mod features;
-mod infrastructure;
+mod shared;
 
 use app::Application;
 

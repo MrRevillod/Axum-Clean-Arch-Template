@@ -4,7 +4,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::features::user::domain::entity::PaginatedData;
-use crate::infrastructure::database::DatabaseConnection;
+use crate::shared::infrastructure::database::DatabaseConnection;
 
 use crate::features::user::{
     domain::{entity::User, errors::UserError, repository::UserRepository},

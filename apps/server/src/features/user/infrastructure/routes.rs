@@ -1,7 +1,7 @@
 use axum::routing::{delete, get, post, Router};
 
 use super::controllers::*;
-use crate::infrastructure::di::AppState;
+use crate::shared::infrastructure::di::AppState;
 
 pub fn router(state: AppState) -> Router {
     Router::new()

@@ -45,6 +45,6 @@ services:
       - my_networks
 
   redis_base:
-    image: redis:latest-alpine
+    image: redis:latest
     networks:
       - my_networks

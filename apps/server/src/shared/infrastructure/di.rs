@@ -11,7 +11,7 @@ use crate::{
         },
         infrastructure::repository::PostgresUserRepository,
     },
-    infrastructure::database::PostgresConnection,
+    shared::infrastructure::{cache::RedisCache, database::PostgresDatabase},
 };
 
 pub type Inject<T> = shaku_axum::Inject<AppModule, T>;
@@ -31,8 +31,10 @@ module! {
 
     pub AppModule {
         components = [
-            PostgresConnection,
+            PostgresDatabase,
             PostgresUserRepository,
+
+            RedisCache,
 
             BcryptPasswordHasher,
 

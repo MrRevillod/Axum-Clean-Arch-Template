@@ -11,7 +11,7 @@ use crate::{
             CreateUserDto, PaginatedDataDTO, UpdateUserDto,
         },
     },
-    infrastructure::{
+    shared::infrastructure::{
         di::Inject,
         http::extractors::{BodyValidator, QueryValidator},
     },

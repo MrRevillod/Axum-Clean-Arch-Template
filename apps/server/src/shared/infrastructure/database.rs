@@ -3,7 +3,7 @@ use std::time::Duration;
 use shaku::{Component, Interface};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 
-use crate::infrastructure::constants::DATABASE_URL;
+use crate::shared::constants::POSTGRES_DATABASE_URL;
 
 pub trait DatabaseConnection: Interface {
     fn get_pool(&self) -> &PgPool;
@@ -11,17 +11,17 @@ pub trait DatabaseConnection: Interface {
 
 #[derive(Component)]
 #[shaku(interface = DatabaseConnection)]
-pub struct PostgresConnection {
+pub struct PostgresDatabase {
     pub pool: PgPool,
 }
 
-impl PostgresConnection {
+impl PostgresDatabase {
     pub async fn new() -> Result<Self, sqlx::Error> {
         let pool = PgPoolOptions::new()
             .min_connections(1)
             .max_connections(10)
             .acquire_timeout(Duration::from_secs(5))
-            .connect(&DATABASE_URL)
+            .connect(&POSTGRES_DATABASE_URL)
             .await?;
 
         Ok(Self { pool })
@@ -38,14 +38,14 @@ impl PostgresConnection {
     }
 }
 
-impl DatabaseConnection for PostgresConnection {
+impl DatabaseConnection for PostgresDatabase {
     fn get_pool(&self) -> &PgPool {
         &self.pool
     }
 }
 
-impl Into<PostgresConnectionParameters> for PostgresConnection {
-    fn into(self) -> PostgresConnectionParameters {
-        PostgresConnectionParameters { pool: self.pool }
+impl Into<PostgresDatabaseParameters> for PostgresDatabase {
+    fn into(self) -> PostgresDatabaseParameters {
+        PostgresDatabaseParameters { pool: self.pool }
     }
 }
