@@ -10,13 +10,11 @@
 // |         User Domain Layer (User)          |     Repository     |
 // |----------------------------------------------------------------|
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use validator::Validate;
 
-use crate::features::user::{
-    application::interfaces::{create::CreateUserInput, update::UpdateUserInput},
-    domain::entity::{PaginatedData, User},
-    infrastructure::models::UserModel,
+use crate::features::user::application::interfaces::{
+    CreateUserInput, UpdateUserInput,
 };
 
 use super::validators::{
@@ -89,36 +87,6 @@ impl From<UpdateUserDto> for UpdateUserInput {
             username: dto.username,
             email: dto.email,
             password: dto.password,
-        }
-    }
-}
-
-// This structs represent the response of GetUsers Controller
-// Its a DTO that is used to convert the data from the use case
-// to the response format that is expected by the client
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PaginatedDataDTO {
-    pub data: Vec<UserModel>,
-    pub count: i64,
-    pub total_pages: i64,
-    pub page: i64,
-    pub page_size: i64,
-}
-
-impl From<PaginatedData<User>> for PaginatedDataDTO {
-    fn from(paginated_data: PaginatedData<User>) -> Self {
-        PaginatedDataDTO {
-            data: paginated_data
-                .data
-                .into_iter()
-                .map(|user| UserModel::from(user))
-                .collect(),
-            count: paginated_data.count,
-            total_pages: paginated_data.total_pages,
-            page: paginated_data.page,
-            page_size: paginated_data.page_size,
         }
     }
 }

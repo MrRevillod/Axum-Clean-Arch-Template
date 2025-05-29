@@ -1,32 +1,27 @@
-use axum::extract::Path;
-use axum_responses::{response, ControllerResult};
+use axum::{extract::Path, http::StatusCode};
+use axum_responses::http::{ControllerResult, HttpResponse};
+use serde_json::json;
 
 use crate::{
     features::user::{
         application::interfaces::{
-            create::CreateUserCase, delete::DeleteUserCase, get::GetUsersCase,
-            update::UpdateUserCase,
+            CreateUserCase, DeleteUserCase, GetUsersCase, UpdateUserCase,
         },
-        infrastructure::dtos::body::{
-            CreateUserDto, PaginatedDataDTO, UpdateUserDto,
-        },
+        infrastructure::dtos::{CreateUserDto, UpdateUserDto},
     },
-    shared::infrastructure::{
-        di::Inject,
-        http::extractors::{BodyValidator, QueryValidator},
-    },
+    shared::infrastructure::{extractors::BodyValidator, Inject},
 };
 
-use super::dtos::query::UserQuery;
+use super::models::UserModel;
 
-pub async fn get_users(
-    use_case: Inject<dyn GetUsersCase>,
-    QueryValidator(query): QueryValidator<UserQuery>,
-) -> ControllerResult {
-    let paginated_data = use_case.execute(query.into()).await?;
-    let paginated_data_dto = PaginatedDataDTO::from(paginated_data);
+pub async fn get_users(use_case: Inject<dyn GetUsersCase>) -> ControllerResult {
+    let data = use_case.execute().await?;
+    let users: Vec<UserModel> = data.into_iter().map(UserModel::from).collect();
 
-    response!(200, { paginated_data_dto })
+    HttpResponse::build()
+        .code(200)
+        .body(json!({ "data": users }))
+        .wrap()
 }
 
 pub async fn create_user(
@@ -34,7 +29,11 @@ pub async fn create_user(
     BodyValidator(user_data): BodyValidator<CreateUserDto>,
 ) -> ControllerResult {
     use_case.execute(user_data.into()).await?;
-    response!(201, { "message": "User created" })
+
+    HttpResponse::build()
+        .status(StatusCode::CREATED)
+        .json(r#"{ "message": "User created" }"#)
+        .wrap()
 }
 
 pub async fn update_user(
@@ -43,7 +42,10 @@ pub async fn update_user(
     BodyValidator(user_data): BodyValidator<UpdateUserDto>,
 ) -> ControllerResult {
     use_case.execute(id, user_data.into()).await?;
-    response!(200, { "message": "User updated" })
+    HttpResponse::build()
+        .status(StatusCode::OK)
+        .json(r#"{ "message": "User updated" }"#)
+        .wrap()
 }
 
 pub async fn delete_user(
@@ -51,5 +53,8 @@ pub async fn delete_user(
     Path(id): Path<String>,
 ) -> ControllerResult {
     use_case.execute(id).await?;
-    response!(200, { "message": "User deleted" })
+    HttpResponse::build()
+        .status(StatusCode::OK)
+        .json(r#"{ "message": "User deleted" }"#)
+        .wrap()
 }

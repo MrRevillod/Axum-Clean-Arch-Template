@@ -1,11 +1,8 @@
 use std::ops::Deref;
 
-use axum::{
-    extract::{FromRequest, Json, Query, Request},
-    http::StatusCode,
-};
+use axum::extract::{FromRequest, Json, Query, Request};
 
-use axum_responses::HttpResponse;
+use axum_responses::http::HttpResponse;
 use serde_json::json;
 use validator::Validate;
 
@@ -21,19 +18,17 @@ where
 
     async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
         let Json(data) =
-            Json::<T>::from_request(req, state)
-                .await
-                .map_err(|_| HttpResponse {
-                    status: StatusCode::BAD_REQUEST,
-                    body: json!({ "error": "Invalid request body" }),
-                })?;
+            Json::<T>::from_request(req, state).await.map_err(|_| {
+                HttpResponse::build()
+                    .code(400)
+                    .body(json!({ "error": "Invalid request body" }))
+            })?;
 
-        data.validate().map_err(|e| HttpResponse {
-            status: StatusCode::BAD_REQUEST,
-            body: json!({
-                "message": "Validation failed",
-                "errors": e.to_string(),
-            }),
+        data.validate().map_err(|e| {
+            HttpResponse::build().code(400).body(json!({
+                "message": "Invalid request body",
+                "errors": e.to_string()
+            }))
         })?;
 
         Ok(BodyValidator(data))
@@ -50,6 +45,7 @@ impl<T> Deref for QueryValidator<T> {
     }
 }
 
+#[allow(dead_code)]
 impl<S, T> FromRequest<S> for QueryValidator<T>
 where
     S: Send + Sync,
@@ -60,18 +56,16 @@ where
     async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
         let Query(value) =
             Query::<T>::from_request(req, state).await.map_err(|_| {
-                HttpResponse {
-                    status: StatusCode::BAD_REQUEST,
-                    body: json!({ "message": "Invalid query format" }),
-                }
+                HttpResponse::build()
+                    .code(400)
+                    .body(json!({ "error": "Invalid Query format" }))
             })?;
 
-        value.validate().map_err(|err| HttpResponse {
-            status: StatusCode::BAD_REQUEST,
-            body: json!({
-                "message": "Invalid query format",
+        value.validate().map_err(|err| {
+            HttpResponse::build().code(400).body(json!({
+                "error": "Invalid Query format",
                 "errors": err.to_string()
-            }),
+            }))
         })?;
 
         Ok(Self(value))

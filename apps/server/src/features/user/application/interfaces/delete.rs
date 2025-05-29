@@ -4,7 +4,7 @@
 use async_trait::async_trait;
 use shaku::Interface;
 
-use crate::features::user::domain::errors::UserError;
+use crate::features::user::domain::UserError;
 
 // The implementation of the DeleteUserCase trait
 // is in: /features/user/application/use_cases/delete.rs

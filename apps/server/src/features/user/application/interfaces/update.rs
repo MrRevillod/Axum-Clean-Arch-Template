@@ -14,7 +14,7 @@
 use async_trait::async_trait;
 use shaku::Interface;
 
-use crate::features::user::domain::{entity::User, errors::UserError};
+use crate::features::user::domain::{User, UserError};
 
 // This input DTO represents the required data to update an existing user.
 

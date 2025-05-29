@@ -3,11 +3,10 @@ use shaku::Component;
 use std::sync::Arc;
 use uuid::Uuid;
 
-use crate::features::user::domain::entity::PaginatedData;
-use crate::shared::infrastructure::database::DatabaseConnection;
+use crate::shared::infrastructure::DatabaseConnection;
 
 use crate::features::user::{
-    domain::{entity::User, errors::UserError, repository::UserRepository},
+    domain::{User, UserError, UserRepository},
     infrastructure::models::UserModel,
 };
 
@@ -20,36 +19,16 @@ pub struct PostgresUserRepository {
 
 #[async_trait]
 impl UserRepository for PostgresUserRepository {
-    async fn find_all(
-        &self,
-        page: i64,
-        page_size: i64,
-    ) -> Result<PaginatedData<User>, UserError> {
+    async fn find_all(&self) -> Result<Vec<User>, UserError> {
         let pool = self.database_connection.get_pool();
-
-        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users")
-            .fetch_one(pool)
-            .await
-            .map_err(|_| UserError::UnexpectedError)?;
-
-        let query = r#"SELECT * FROM users ORDER BY created_at LIMIT $1 OFFSET $2"#;
-
-        let users = sqlx::query_as::<_, UserModel>(query)
-            .bind(page_size)
-            .bind((page - 1) * page_size)
+        let users = sqlx::query_as::<_, UserModel>(r#"SELECT * FROM users"#)
             .fetch_all(pool)
             .await
             .map_err(|_| UserError::UnexpectedError)?;
 
         let entity_vec = users.into_iter().map(|model| User::from(model)).collect();
 
-        Ok(PaginatedData {
-            data: entity_vec,
-            count,
-            page,
-            page_size,
-            total_pages: count / page_size,
-        })
+        Ok(entity_vec)
     }
 
     async fn find_by_id(&self, user_id: Uuid) -> Result<Option<User>, UserError> {

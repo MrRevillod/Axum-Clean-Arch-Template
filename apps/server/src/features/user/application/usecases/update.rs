@@ -6,10 +6,10 @@ use uuid::Uuid;
 
 use crate::features::user::{
     application::{
-        interfaces::update::{UpdateUserCase, UpdateUserInput},
-        services::password::PasswordHasher,
+        interfaces::{UpdateUserCase, UpdateUserInput},
+        services::PasswordHasher,
     },
-    domain::{entity::User, errors::UserError, repository::UserRepository},
+    domain::{User, UserError, UserRepository},
 };
 
 #[derive(Component)]

@@ -1,13 +1,10 @@
-use std::str::FromStr;
-
 use async_trait::async_trait;
 use redis::{aio::MultiplexedConnection, AsyncCommands, Client};
-use serde_json::Value;
 use shaku::Component;
 
 use crate::shared::{
     constants::REDIS_CACHE_DB_URL,
-    domain::cache::{Cache, CacheError},
+    domain::{Cache, CacheError, CacheResult},
 };
 
 #[derive(Component)]
@@ -36,22 +33,24 @@ impl RedisCache {
 
 #[async_trait]
 impl Cache for RedisCache {
-    async fn get_str(&self, key: &str) -> Result<Option<String>, CacheError> {
+    async fn get(&self, key: &str) -> Result<CacheResult<String>, CacheError> {
         let mut connection = self.get_connection();
 
-        let cached: Option<String> = connection
+        let cached_value: Option<String> = connection
             .get(key)
             .await
             .map_err(|e| CacheError(e.to_string()))?;
 
-        let Some(s) = cached else {
-            return Ok(None);
+        let Some(value) = cached_value else {
+            return Ok(CacheResult::empty());
         };
 
-        Ok(Some(s))
+        let etag = self.etag(&value);
+
+        Ok(CacheResult::new(value, Some(etag)))
     }
 
-    async fn set_str(&self, key: &str, value: String) -> Result<(), CacheError> {
+    async fn set(&self, key: &str, value: String) -> Result<(), CacheError> {
         let mut connection = self.get_connection();
 
         connection
@@ -62,37 +61,8 @@ impl Cache for RedisCache {
         Ok(())
     }
 
-    async fn get_json(&self, key: &str) -> Result<Option<Value>, CacheError> {
-        let mut connection = self.get_connection();
-
-        let cached: Option<String> = connection
-            .get(key)
-            .await
-            .map_err(|e| CacheError(e.to_string()))?;
-
-        let Some(s) = cached else {
-            return Ok(None);
-        };
-
-        let Ok(value) = Value::from_str(&s) else {
-            return Err(CacheError("JSON parse error".to_string()));
-        };
-
-        Ok(Some(value))
-    }
-
-    async fn set_json(&self, key: &str, value: &Value) -> Result<(), CacheError> {
-        let mut connection = self.get_connection();
-
-        let value_str = serde_json::to_string(value)
-            .map_err(|e| CacheError(format!("JSON serialization error: {}", e)))?;
-
-        connection
-            .set::<&str, String, ()>(key, value_str)
-            .await
-            .map_err(|e| CacheError(format!("Redis set error: {}", e)))?;
-
-        Ok(())
+    fn etag(&self, data: &str) -> String {
+        format!("{:x}", md5::compute(data))
     }
 }
 

@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 use uuid::Uuid;
 
-use crate::features::user::domain::entity::User;
+use crate::features::user::domain::User;
 
 // The `UserModel` struct represents the user model in the database.
 // Implements the `FromRow` trait from the `sqlx` crate.

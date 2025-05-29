@@ -1,4 +1,3 @@
-
 use axum::http::{HeaderName, Method};
 use lazy_static::lazy_static;
 use std::env;

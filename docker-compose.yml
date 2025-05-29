@@ -57,21 +57,6 @@ services:
     networks:
       - my_networks
 
-  redis_dev:
-    container_name: redis_dev
-    extends:
-      file: docker-compose.base.yml
-      service: redis_base
-    ports:
-      - "6379:6379"
-    env_file:
-      - .env
-    networks:
-      - my_networks
-    volumes:
-      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
-    command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
-
 networks:
   my_networks:
     driver: bridge

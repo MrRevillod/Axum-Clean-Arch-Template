@@ -43,8 +43,3 @@ services:
       start_period: 10s
     networks:
       - my_networks
-
-  redis_base:
-    image: redis:latest
-    networks:
-      - my_networks

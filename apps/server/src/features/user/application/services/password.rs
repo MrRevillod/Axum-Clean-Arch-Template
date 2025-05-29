@@ -1,6 +1,6 @@
 use shaku::{Component, Interface};
 
-use crate::features::user::domain::errors::UserError;
+use crate::features::user::domain::UserError;
 
 const PASSWORD_HASH_COST: u32 = 10;
 

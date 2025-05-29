@@ -4,8 +4,8 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::features::user::{
-    application::interfaces::delete::DeleteUserCase,
-    domain::{errors::UserError, repository::UserRepository},
+    application::interfaces::DeleteUserCase,
+    domain::{UserError, UserRepository},
 };
 
 #[derive(Component)]

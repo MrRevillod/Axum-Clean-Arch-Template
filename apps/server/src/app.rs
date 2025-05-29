@@ -1,17 +1,15 @@
 use std::sync::Arc;
 
 use axum::Router;
-use axum_responses::{response, ControllerResult};
+use axum_responses::{http::HttpResponse, response};
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
 
-use crate::features::user::infrastructure::routes::router as user_router;
+use crate::features::user::infrastructure::user_router;
 
 use crate::shared::infrastructure::{
-    cache::RedisCache,
-    database::PostgresDatabase,
-    di::{AppModule, AppState},
-    http::logger::HttpLogger,
+    logger::HttpLogger,
+    PostgresDatabase, {AppModule, AppState},
 };
 
 use crate::shared::constants::{
@@ -52,13 +50,8 @@ impl Application {
             .await
             .expect("Failed to run database migrations");
 
-        let redis_cache_conn = RedisCache::new()
-            .await
-            .expect("Failed to connect with the cache db");
-
         let di_module = AppModule::builder()
             .with_component_parameters::<PostgresDatabase>(db_connection.into())
-            .with_component_parameters::<RedisCache>(redis_cache_conn.into())
             .build();
 
         AppState {
@@ -76,13 +69,10 @@ impl Application {
         Ok(())
     }
 
-    pub async fn health_check() -> ControllerResult {
+    pub async fn health_check() -> HttpResponse {
         let time = chrono::Utc::now();
         let status = "running";
 
-        response!(200, {
-            "status": status,
-            "time": time.to_string(),
-        })
+        response!(200, { "status": status, "time": time.to_string() })
     }
 }

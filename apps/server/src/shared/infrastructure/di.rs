@@ -4,14 +4,16 @@ use std::sync::Arc;
 
 use crate::{
     features::user::{
-        application::services::password::BcryptPasswordHasher,
-        application::usecases::{
-            create::CreateUserCaseImpl, delete::DeleteUserCaseImpl,
-            get::GetUsersCaseImpl, update::UpdateUserCaseImpl,
+        application::{
+            services::BcryptPasswordHasher,
+            usecases::{
+                CreateUserCaseImpl, DeleteUserCaseImpl, GetUsersCaseImpl,
+                UpdateUserCaseImpl,
+            },
         },
-        infrastructure::repository::PostgresUserRepository,
+        infrastructure::PostgresUserRepository,
     },
-    shared::infrastructure::{cache::RedisCache, database::PostgresDatabase},
+    shared::infrastructure::database::PostgresDatabase,
 };
 
 pub type Inject<T> = shaku_axum::Inject<AppModule, T>;
@@ -33,8 +35,6 @@ module! {
         components = [
             PostgresDatabase,
             PostgresUserRepository,
-
-            RedisCache,
 
             BcryptPasswordHasher,
 

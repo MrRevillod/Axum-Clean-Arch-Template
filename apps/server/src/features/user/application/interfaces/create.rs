@@ -15,7 +15,7 @@ use async_trait::async_trait;
 use shaku::Interface;
 use uuid::Uuid;
 
-use crate::features::user::domain::{entity::User, errors::UserError};
+use crate::features::user::domain::{User, UserError};
 
 /// Datos requeridos para crear un nuevo usuario.
 /// Este DTO representa la entrada cruda recibida desde

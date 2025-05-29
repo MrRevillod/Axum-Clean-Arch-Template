@@ -2,16 +2,9 @@ use async_trait::async_trait;
 use shaku::Component;
 use std::sync::Arc;
 
-use crate::{
-    features::user::{
-        application::interfaces::get::{GetUsersCase, UserQueryInput},
-        domain::{
-            entity::{PaginatedData, User},
-            errors::UserError,
-            repository::UserRepository,
-        },
-    },
-    shared::domain::cache::Cache,
+use crate::features::user::{
+    application::interfaces::GetUsersCase,
+    domain::{User, UserError, UserRepository},
 };
 
 #[derive(Component)]
@@ -19,20 +12,11 @@ use crate::{
 pub struct GetUsersCaseImpl {
     #[shaku(inject)]
     repository: Arc<dyn UserRepository>,
-    #[shaku(inject)]
-    cache: Arc<dyn Cache>,
 }
 
 #[async_trait]
 impl GetUsersCase for GetUsersCaseImpl {
-    async fn execute(
-        &self,
-        query: UserQueryInput,
-    ) -> Result<PaginatedData<User>, UserError> {
-        let cache_key = format!("users:{}:{}", query.page, query.page_size);
-
-        let data = self.cache.get_json(&cache_key).await?;
-
-        self.repository.find_all(query.page, query.page_size).await
+    async fn execute(&self) -> Result<Vec<User>, UserError> {
+        self.repository.find_all().await
     }
 }

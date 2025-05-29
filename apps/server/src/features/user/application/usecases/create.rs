@@ -4,10 +4,10 @@ use std::sync::Arc;
 
 use crate::features::user::{
     application::{
-        interfaces::create::{CreateUserCase, CreateUserInput},
-        services::password::PasswordHasher,
+        interfaces::{CreateUserCase, CreateUserInput},
+        services::PasswordHasher,
     },
-    domain::{entity::User, errors::UserError, repository::UserRepository},
+    domain::{User, UserError, UserRepository},
 };
 
 #[derive(Component)]
