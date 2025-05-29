@@ -28,11 +28,11 @@ pub async fn create_user(
     use_case: Inject<dyn CreateUserCase>,
     BodyValidator(user_data): BodyValidator<CreateUserDto>,
 ) -> ControllerResult {
-    use_case.execute(user_data.into()).await?;
+    let user = use_case.execute(user_data.into()).await?;
 
     HttpResponse::build()
         .status(StatusCode::CREATED)
-        .json(r#"{ "message": "User created" }"#)
+        .body(json!({ "data": UserModel::from(user) }))
         .wrap()
 }
 
@@ -41,10 +41,10 @@ pub async fn update_user(
     Path(id): Path<String>,
     BodyValidator(user_data): BodyValidator<UpdateUserDto>,
 ) -> ControllerResult {
-    use_case.execute(id, user_data.into()).await?;
+    let user = use_case.execute(id, user_data.into()).await?;
     HttpResponse::build()
         .status(StatusCode::OK)
-        .json(r#"{ "message": "User updated" }"#)
+        .body(json!({ "data": UserModel::from(user) }))
         .wrap()
 }
 
@@ -55,6 +55,6 @@ pub async fn delete_user(
     use_case.execute(id).await?;
     HttpResponse::build()
         .status(StatusCode::OK)
-        .json(r#"{ "message": "User deleted" }"#)
+        .body(json!({ "message": "User deleted successfully" }))
         .wrap()
 }
