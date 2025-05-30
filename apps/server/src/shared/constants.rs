@@ -9,7 +9,6 @@ fn get_env_var(key: &str) -> String {
 lazy_static! {
     pub static ref POSTGRES_DATABASE_URL: String =
         get_env_var("POSTGRES_DATABASE_URL");
-    pub static ref REDIS_CACHE_DB_URL: String = get_env_var("REDIS_CACHE_DB_URL");
     pub static ref ALLOWED_HTTP_HEADERS: Vec<HeaderName> = vec![
         HeaderName::from_static("content-type"),
         HeaderName::from_static("authorization"),
@@ -25,5 +24,4 @@ lazy_static! {
 
 pub fn check_env_vars() {
     let _ = POSTGRES_DATABASE_URL.clone();
-    let _ = REDIS_CACHE_DB_URL.clone();
 }
