@@ -1,11 +1,13 @@
 import React from "react"
 
-import { Routes } from "react-router-dom"
+import { Route, Routes } from "react-router-dom"
+
+import Home from "./home"
 
 const App: React.FC = () => {
 	return (
 		<Routes>
-			<></>
+			<Route path="/home" element={<Home />} />
 		</Routes>
 	)
 }

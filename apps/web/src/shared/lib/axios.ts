@@ -1,6 +1,7 @@
 import axios from "axios"
 
-const BASE_API_URL = import.meta.env.VITE_BASE_API_URL ?? "http://localhost/api"
+const BASE_API_URL =
+	import.meta.env.VITE_BASE_API_URL || "http://localhost:3000/api"
 
 const axiosOpts = {
 	baseURL: BASE_API_URL,
@@ -29,7 +30,8 @@ protectedApi.interceptors.response.use(
 		return api
 			.post("/auth/refresh")
 			.then(response => {
-				if (response.status === 200) return protectedApi(originalRequest)
+				if (response.status === 200)
+					return protectedApi(originalRequest)
 			})
 			.catch(error => Promise.reject(error))
 	},

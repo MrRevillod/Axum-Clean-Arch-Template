@@ -1,4 +1,19 @@
 {
+    "tailwindCSS.classAttributes": [
+        "class",
+        "className",
+        "theme"
+    ],
+    "tailwindCSS.experimental.classRegex": [
+        [
+            "twMerge\\(([^)]*)\\)",
+            "[\"'`]([^\"'`]*).*?[\"'`]"
+        ],
+        [
+            "createTheme(?:<\\w+>)?\\s*\\(([^)]*)\\)",
+            "{?\\s?[\\w].*:\\s*?[\"'`]([^\"'`]*).*?,?\\s?}?"
+        ]
+    ],
     "workbench.editor.limit.enabled": true,
     "workbench.editor.limit.value": 5,
     "workbench.list.smoothScrolling": false,

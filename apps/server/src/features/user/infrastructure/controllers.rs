@@ -12,11 +12,12 @@ use crate::{
     shared::infrastructure::{extractors::BodyValidator, Inject},
 };
 
-use super::models::UserModel;
+use super::models::{UserModel, UserResponseDTO};
 
 pub async fn get_users(use_case: Inject<dyn GetUsersCase>) -> ControllerResult {
     let data = use_case.execute().await?;
-    let users: Vec<UserModel> = data.into_iter().map(UserModel::from).collect();
+    let users: Vec<UserResponseDTO> =
+        data.into_iter().map(UserResponseDTO::from).collect();
 
     HttpResponse::build()
         .code(200)

@@ -8,4 +8,9 @@ export type ApiResponse<T = unknown> = {
 	message?: string
 }
 
-export type MutationFn<TData, TVariables> = UseMutateFunction<TData, Error, TVariables, unknown>
+export type MutationFn<TData, TVariables> = UseMutateFunction<
+	TData,
+	Error,
+	TVariables,
+	unknown
+>
